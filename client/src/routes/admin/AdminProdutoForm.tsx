@@ -1,0 +1,534 @@
+import { useEffect, useState, type ReactNode } from "react";
+import { useLocation, useParams } from "wouter";
+import { trpc } from "../../lib/trpc";
+import { CATEGORIAS, type Categoria } from "@shared/const";
+import AdminGuard from "./AdminGuard";
+import AdminLayout from "./AdminLayout";
+import GerenciarVariantes from "./GerenciarVariantes";
+import { Card, Botao, Label, campoBase } from "./AdminUI";
+
+function gerarSlug(nome: string) {
+  return nome
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+const LIMITE_IMAGENS = 10;
+type TipoPersonalizacao = "gravacao";
+
+function Secao({
+  titulo,
+  descricao,
+  children,
+}: {
+  titulo: string;
+  descricao?: string;
+  children: ReactNode;
+}) {
+  return (
+    <Card className="p-6">
+      <p className="text-sm font-semibold text-[#16181F]">{titulo}</p>
+      {descricao && <p className="mt-0.5 text-xs text-[#5E6270]">{descricao}</p>}
+      <div className="mt-5 space-y-4">{children}</div>
+    </Card>
+  );
+}
+
+function Formulario() {
+  const { slug: slugEdicao } = useParams<{ slug?: string }>();
+  const editando = !!slugEdicao;
+  const [, navegar] = useLocation();
+  const utils = trpc.useUtils();
+
+  const { data: produtoExistente } = trpc.produtos.buscarPorSlug.useQuery(
+    { slug: slugEdicao ?? "" },
+    { enabled: editando }
+  );
+
+  const [nome, setNome] = useState(produtoExistente?.nome ?? "");
+  const [slug, setSlug] = useState(produtoExistente?.slug ?? "");
+  const [slugEditadoManualmente, setSlugEditadoManualmente] = useState(editando);
+  const [categoria, setCategoria] = useState<Categoria>(
+    produtoExistente?.categoria ?? "aneis"
+  );
+  const [descricao, setDescricao] = useState(produtoExistente?.descricao ?? "");
+  const [precoBase, setPrecoBase] = useState(produtoExistente?.precoBase ?? "");
+  const [precoPromocional, setPrecoPromocional] = useState(produtoExistente?.precoPromocional ?? "");
+  const [material, setMaterial] = useState(produtoExistente?.material ?? "");
+  const [pedras, setPedras] = useState(produtoExistente?.pedras ?? "");
+  const [dimensoes, setDimensoes] = useState(produtoExistente?.dimensoes ?? "");
+  const [garantiaMeses, setGarantiaMeses] = useState(produtoExistente?.garantiaMeses ?? 12);
+  const [hipoalergenica, setHipoalergenica] = useState(produtoExistente?.hipoalergenica ?? true);
+  const [destaque, setDestaque] = useState(produtoExistente?.destaque ?? false);
+  const [novidade, setNovidade] = useState(produtoExistente?.novidade ?? true);
+  const [personalizavel, setPersonalizavel] = useState(
+    produtoExistente?.personalizavel ?? false
+  );
+  const [tipoPersonalizacao, setTipoPersonalizacao] = useState<TipoPersonalizacao>(
+    (produtoExistente?.tipoPersonalizacao as TipoPersonalizacao | null) ?? "gravacao"
+  );
+  const [precoSobConsulta, setPrecoSobConsulta] = useState(
+    produtoExistente?.precoSobConsulta ?? false
+  );
+  const [custoPersonalizacao, setCustoPersonalizacao] = useState(
+    produtoExistente?.custoPersonalizacao ?? "0"
+  );
+  const [prazoProducaoDias, setPrazoProducaoDias] = useState(
+    produtoExistente?.prazoProducaoDias ?? 2
+  );
+  const [cuidados, setObservacaoArtesanal] = useState(
+    produtoExistente?.cuidados ?? ""
+  );
+  const [ativo, setAtivo] = useState(produtoExistente?.ativo ?? true);
+  const [controlarEstoque, setControlarEstoque] = useState(
+    produtoExistente?.controlarEstoque ?? false
+  );
+  const [estoque, setEstoque] = useState(produtoExistente?.estoque ?? 0);
+  const [imagens, setImagens] = useState<string[]>(produtoExistente?.imagens ?? []);
+  const [enviandoImagem, setEnviandoImagem] = useState(false);
+  const [progressoUpload, setProgressoUpload] = useState<{ atual: number; total: number } | null>(
+    null
+  );
+  const [erro, setErro] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!produtoExistente) return;
+    setNome(produtoExistente.nome);
+    setSlug(produtoExistente.slug);
+    setCategoria(produtoExistente.categoria);
+    setDescricao(produtoExistente.descricao ?? "");
+    setPrecoBase(produtoExistente.precoBase);
+    setPrecoPromocional(produtoExistente.precoPromocional ?? "");
+    setMaterial(produtoExistente.material ?? "");
+    setPedras(produtoExistente.pedras ?? "");
+    setDimensoes(produtoExistente.dimensoes ?? "");
+    setGarantiaMeses(produtoExistente.garantiaMeses);
+    setHipoalergenica(produtoExistente.hipoalergenica);
+    setDestaque(produtoExistente.destaque);
+    setNovidade(produtoExistente.novidade);
+    setPersonalizavel(produtoExistente.personalizavel);
+    setTipoPersonalizacao(
+      (produtoExistente.tipoPersonalizacao as TipoPersonalizacao | null) ?? "gravacao"
+    );
+    setPrecoSobConsulta(produtoExistente.precoSobConsulta);
+    setControlarEstoque(produtoExistente.controlarEstoque);
+    setEstoque(produtoExistente.estoque);
+    setCustoPersonalizacao(produtoExistente.custoPersonalizacao ?? "0");
+    setPrazoProducaoDias(produtoExistente.prazoProducaoDias);
+    setObservacaoArtesanal(produtoExistente.cuidados ?? "");
+    setAtivo(produtoExistente.ativo);
+    setImagens(produtoExistente.imagens ?? []);
+  }, [produtoExistente]);
+
+  const gerarUpload = trpc.admin.gerarUploadCloudflare.useMutation();
+  const criar = trpc.produtos.criar.useMutation();
+  const atualizar = trpc.produtos.atualizar.useMutation();
+  const notificarNovidade = trpc.produtos.notificarNovidade.useMutation();
+  const salvando = criar.isPending || atualizar.isPending;
+
+  async function handleUploadImagens(arquivos: FileList) {
+    const lista = Array.from(arquivos);
+    const vagas = LIMITE_IMAGENS - imagens.length;
+
+    if (vagas <= 0) {
+      setErro(`Limite de ${LIMITE_IMAGENS} imagens por peça atingido.`);
+      return;
+    }
+
+    const paraEnviar = lista.slice(0, vagas);
+    if (lista.length > vagas) {
+      setErro(
+        `Só cabem mais ${vagas} imagem(ns) (limite de ${LIMITE_IMAGENS}). As demais foram ignoradas.`
+      );
+    } else {
+      setErro(null);
+    }
+
+    for (let i = 0; i < paraEnviar.length; i++) {
+      setProgressoUpload({ atual: i + 1, total: paraEnviar.length });
+      await handleUploadImagem(paraEnviar[i]);
+    }
+    setProgressoUpload(null);
+  }
+
+  async function handleUploadImagem(arquivo: File) {
+    if (imagens.length >= LIMITE_IMAGENS) {
+      setErro(`Limite de ${LIMITE_IMAGENS} imagens por peça atingido.`);
+      return;
+    }
+
+    setErro(null);
+    setEnviandoImagem(true);
+    try {
+      const { uploadURL } = await gerarUpload.mutateAsync();
+
+      const formData = new FormData();
+      formData.append("file", arquivo);
+
+      const resposta = await fetch(uploadURL, { method: "POST", body: formData });
+      const dados = await resposta.json();
+
+      if (!resposta.ok || !dados.success) {
+        throw new Error(dados?.errors?.[0]?.message ?? "Falha no upload da imagem.");
+      }
+
+      const urlImagem = dados.result.variants[0] as string;
+      setImagens((atual) => [...atual, urlImagem]);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha no upload da imagem.");
+    } finally {
+      setEnviandoImagem(false);
+    }
+  }
+
+  function removerImagem(url: string) {
+    setImagens((atual) => atual.filter((i) => i !== url));
+  }
+
+  async function salvar() {
+    setErro(null);
+
+    if (!nome.trim() || !slug.trim() || (!precoBase && !precoSobConsulta)) {
+      setErro("Preencha ao menos nome, slug e preço base (ou marque 'sob consulta').");
+      return;
+    }
+
+    const dadosComuns = {
+      nome,
+      slug,
+      categoria,
+      descricao: descricao || undefined,
+      precoBase: precoBase || "0",
+      precoPromocional: precoPromocional ? String(precoPromocional).replace(",", ".") : null,
+      material: material || undefined,
+      pedras: pedras || undefined,
+      dimensoes: dimensoes || undefined,
+      garantiaMeses: Number(garantiaMeses),
+      hipoalergenica,
+      destaque,
+      novidade,
+      personalizavel,
+      tipoPersonalizacao: personalizavel ? tipoPersonalizacao : undefined,
+      custoPersonalizacao: personalizavel ? custoPersonalizacao : "0",
+      precoSobConsulta,
+      controlarEstoque,
+      estoque: Number(estoque),
+      prazoProducaoDias: Number(prazoProducaoDias),
+      cuidados: cuidados || undefined,
+      imagens,
+      ativo,
+    };
+
+    try {
+      if (editando && produtoExistente) {
+        await atualizar.mutateAsync({ id: produtoExistente.id, dados: dadosComuns });
+      } else {
+        await criar.mutateAsync({ ...dadosComuns, ehKit: false });
+      }
+      await utils.produtos.listar.invalidate();
+      await utils.produtos.listarAdmin.invalidate();
+      navegar("/admin/produtos");
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Não foi possível salvar o produto.");
+    }
+  }
+
+  return (
+    <AdminLayout
+      titulo={editando ? "Editar peça" : "Nova peça"}
+      acoes={
+        <>
+          {editando && produtoExistente && (
+            <Botao
+              variante="secundario"
+              onClick={() => notificarNovidade.mutate({ produtoId: produtoExistente.id })}
+              disabled={notificarNovidade.isPending}
+            >
+              {notificarNovidade.isPending
+                ? "Enviando…"
+                : notificarNovidade.isSuccess
+                ? `Avisados ${notificarNovidade.data.enviados}`
+                : "Avisar assinantes"}
+            </Botao>
+          )}
+          <Botao variante="secundario" onClick={() => navegar("/admin/produtos")}>
+            Cancelar
+          </Botao>
+          <Botao variante="primario" onClick={salvar} disabled={salvando || enviandoImagem}>
+            {salvando ? "Salvando…" : "Salvar peça"}
+          </Botao>
+        </>
+      }
+    >
+      <div className="mx-auto max-w-2xl space-y-6">
+        {erro && (
+          <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{erro}</p>
+        )}
+
+        <Secao titulo="Informações básicas">
+          <div>
+            <Label>Nome</Label>
+            <input
+              value={nome}
+              onChange={(e) => {
+                setNome(e.target.value);
+                if (!slugEditadoManualmente) setSlug(gerarSlug(e.target.value));
+              }}
+              className={campoBase}
+            />
+          </div>
+
+          <div>
+            <Label>Slug (URL da peça)</Label>
+            <input
+              value={slug}
+              onChange={(e) => {
+                setSlug(e.target.value);
+                setSlugEditadoManualmente(true);
+              }}
+              className={`${campoBase} font-mono`}
+            />
+          </div>
+
+          <div>
+            <Label>Categoria</Label>
+            <select
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value as Categoria)}
+              className={campoBase}
+            >
+              {CATEGORIAS.map((c) => (
+                <option key={c.valor} value={c.valor}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <Label>Descrição</Label>
+            <textarea
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              rows={3}
+              className={campoBase}
+            />
+          </div>
+        </Secao>
+
+        <Secao titulo="Ficha técnica">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label>Material / banho</Label>
+              <input value={material} onChange={(e) => setMaterial(e.target.value)} placeholder="Latão com banho de ouro 18k" className={campoBase} />
+            </div>
+            <div>
+              <Label>Pedras</Label>
+              <input value={pedras} onChange={(e) => setPedras(e.target.value)} placeholder="Zircônias brancas" className={campoBase} />
+            </div>
+            <div>
+              <Label>Medidas</Label>
+              <input value={dimensoes} onChange={(e) => setDimensoes(e.target.value)} placeholder="Pingente 1,2 cm · corrente 45 cm" className={campoBase} />
+            </div>
+            <div>
+              <Label>Garantia (meses, 0 = não exibir)</Label>
+              <input type="number" min={0} max={120} value={garantiaMeses} onChange={(e) => setGarantiaMeses(Number(e.target.value))} className={campoBase} />
+            </div>
+          </div>
+          <label className="flex items-center gap-2.5 text-sm text-[#16181F]">
+            <input type="checkbox" checked={hipoalergenica} onChange={(e) => setHipoalergenica(e.target.checked)} />
+            Antialérgica (livre de níquel)
+          </label>
+        </Secao>
+
+        <Secao titulo="Preço e produção">
+          <label className="flex items-center gap-2.5 text-sm text-[#16181F]">
+            <input
+              type="checkbox"
+              checked={precoSobConsulta}
+              onChange={(e) => setPrecoSobConsulta(e.target.checked)}
+            />
+            Preço sob consulta (não mostra valor fixo na vitrine)
+          </label>
+
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="flex-1">
+              <Label>Preço base (R$){precoSobConsulta && " — opcional"}</Label>
+              <input
+                value={precoBase}
+                onChange={(e) => setPrecoBase(e.target.value)}
+                placeholder="189.90"
+                className={campoBase}
+              />
+            </div>
+            <div className="flex-1">
+              <Label>Promocional (R$, opcional)</Label>
+              <input
+                value={precoPromocional}
+                onChange={(e) => setPrecoPromocional(e.target.value)}
+                placeholder="149.90"
+                className={campoBase}
+              />
+            </div>
+            <div className="flex-1">
+              <Label>Prazo de envio (dias úteis)</Label>
+              <input
+                type="number"
+                min={1}
+                value={prazoProducaoDias}
+                onChange={(e) => setPrazoProducaoDias(Number(e.target.value))}
+                className={campoBase}
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label>Cuidados com a peça (opcional)</Label>
+            <textarea
+              value={cuidados}
+              onChange={(e) => setObservacaoArtesanal(e.target.value)}
+              rows={2}
+              placeholder="Evite perfume, cremes e água do mar…"
+              className={campoBase}
+            />
+          </div>
+        </Secao>
+
+        <Secao titulo="Estoque">
+          <label className="flex items-center gap-2.5 text-sm text-[#16181F]">
+            <input
+              type="checkbox"
+              checked={controlarEstoque}
+              onChange={(e) => setControlarEstoque(e.target.checked)}
+            />
+            Controlar estoque (desmarcado = sob encomenda, sem limite fixo)
+          </label>
+
+          {controlarEstoque && (
+            <div className="max-w-[10rem]">
+              <Label>Peças em estoque</Label>
+              <input
+                type="number"
+                min={0}
+                value={estoque}
+                onChange={(e) => setEstoque(Number(e.target.value))}
+                className={campoBase}
+              />
+            </div>
+          )}
+        </Secao>
+
+        <Secao titulo="Personalização">
+          <label className="flex items-center gap-2.5 text-sm text-[#16181F]">
+            <input
+              type="checkbox"
+              checked={personalizavel}
+              onChange={(e) => setPersonalizavel(e.target.checked)}
+            />
+            Aceita gravação personalizada (nomes, data)
+          </label>
+
+          {personalizavel && (
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <div className="flex-1">
+                <Label>Tipo</Label>
+                <select
+                  value={tipoPersonalizacao}
+                  onChange={(e) => setTipoPersonalizacao(e.target.value as TipoPersonalizacao)}
+                  className={campoBase}
+                >
+                  <option value="gravacao">Gravação de texto</option>
+                </select>
+              </div>
+              <div className="flex-1">
+                <Label>Custo da gravação (R$, 0 = cortesia)</Label>
+                <input
+                  value={custoPersonalizacao}
+                  onChange={(e) => setCustoPersonalizacao(e.target.value)}
+                  placeholder="0.00"
+                  className={campoBase}
+                />
+              </div>
+            </div>
+          )}
+        </Secao>
+
+        <Secao titulo="Imagens" descricao={`${imagens.length}/${LIMITE_IMAGENS} usadas`}>
+          <div className="flex flex-wrap gap-3">
+            {imagens.map((url) => (
+              <div key={url} className="relative h-24 w-24 overflow-hidden rounded-lg border border-black/5">
+                <img src={url} alt="" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removerImagem(url)}
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-xs text-white"
+                  aria-label="Remover imagem"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+
+            {imagens.length < LIMITE_IMAGENS && (
+              <label className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-black/10 text-center text-xs text-[#5E6270] hover:border-ouro">
+                {progressoUpload
+                  ? `Enviando ${progressoUpload.atual}/${progressoUpload.total}…`
+                  : "+ Imagens"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  disabled={enviandoImagem}
+                  onChange={(e) => {
+                    const arquivos = e.target.files;
+                    if (arquivos && arquivos.length > 0) handleUploadImagens(arquivos);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+            )}
+          </div>
+        </Secao>
+
+        <Secao titulo="Visibilidade">
+          <label className="flex items-center gap-2.5 text-sm text-[#16181F]">
+            <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />
+            Ativo (visível no catálogo)
+          </label>
+          <label className="flex items-center gap-2.5 text-sm text-[#16181F]">
+            <input type="checkbox" checked={destaque} onChange={(e) => setDestaque(e.target.checked)} />
+            Destaque (aparece primeiro na Home e no catálogo)
+          </label>
+          <label className="flex items-center gap-2.5 text-sm text-[#16181F]">
+            <input type="checkbox" checked={novidade} onChange={(e) => setNovidade(e.target.checked)} />
+            Novidade (selo e carrossel de lançamentos)
+          </label>
+        </Secao>
+
+        {editando && produtoExistente ? (
+          <GerenciarVariantes
+            produtoId={produtoExistente.id}
+            variantesTamanho={produtoExistente.variantesTamanho}
+            variantesBanho={produtoExistente.variantesBanho}
+          />
+        ) : (
+          <Card className="border-dashed p-5 text-sm text-[#5E6270]">
+            Salve a peça primeiro para cadastrar banhos e tamanhos (aros).
+          </Card>
+        )}
+      </div>
+    </AdminLayout>
+  );
+}
+
+export default function AdminProdutoForm() {
+  return (
+    <AdminGuard>
+      <Formulario />
+    </AdminGuard>
+  );
+}

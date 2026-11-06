@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: "Montserrat", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .font-serif, .font-display {
+    font-family: "Cinzel", serif;
+    letter-spacing: 0.02em;
+  }
+  ::selection {
+    background: #d4af37;
+    color: #0b0d14;
+  }
+}
+
+/* Rótulo em versalete acima de títulos — mesma voz tipográfica do
+   "JOIAS E ALIANÇAS" da logo (Montserrat espaçada). */
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* Texto em ouro metálico — só para títulos curtos sobre fundo escuro */
+.texto-ouro {
+  background: linear-gradient(110deg, #f6e3a1 0%, #d4af37 35%, #9a7b22 60%, #e9c766 85%, #b8921f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Filete dourado com losango no centro — o separador da logo
+   (——— ◆ ———), elemento de assinatura usado entre seções. */
+.filete {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: #d4af37;
+}
+.filete::before,
+.filete::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, currentColor);
+}
+.filete::after {
+  background: linear-gradient(270deg, transparent, currentColor);
+}
+
+/* Fundo escuro com brilho dourado difuso — hero e faixas premium */
+.fundo-onix {
+  background:
+    radial-gradient(60% 80% at 70% 30%, rgba(212, 175, 55, 0.16), transparent 60%),
+    radial-gradient(50% 60% at 10% 90%, rgba(14, 34, 61, 0.55), transparent 70%),
+    #0b0d14;
+}
+
+/* Reflexo que atravessa a foto da peça no hover do card */
+.reflexo {
+  position: relative;
+  overflow: hidden;
+}
+.reflexo::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-250%) skewX(-20deg);
+  opacity: 0;
+  pointer-events: none;
+}
+.group:hover .reflexo::after {
+  animation: brilho 1.1s ease-out;
+}
+@keyframes brilho {
+  from { transform: translateX(-250%) skewX(-20deg); opacity: 1; }
+  to { transform: translateX(260%) skewX(-20deg); opacity: 1; }
+}
+
+/* Vibração periódica do botão de atendimento */
+@keyframes vibrar-whatsapp {
+  0%, 88%, 100% { transform: rotate(0deg) scale(1); }
+  89% { transform: rotate(-14deg) scale(1.06); }
+  90% { transform: rotate(13deg) scale(1.06); }
+  91% { transform: rotate(-12deg) scale(1.05); }
+  92% { transform: rotate(11deg) scale(1.05); }
+  93% { transform: rotate(-8deg) scale(1.03); }
+  94% { transform: rotate(7deg) scale(1.03); }
+  95%, 100% { transform: rotate(0deg) scale(1); }
+}
+.animate-vibrar-whatsapp {
+  animation: vibrar-whatsapp 4.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-vibrar-whatsapp,
+  .animate-surgir,
+  .group:hover .reflexo::after {
+    animation: none;
+  }
+}
+
+/* Entrada do mini-carrinho lateral (desliza da direita) */
+@keyframes entrar {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Esconde a barra de rolagem em carrosséis horizontais */
+.sem-scrollbar { scrollbar-width: none; }
+.sem-scrollbar::-webkit-scrollbar { display: none; }
