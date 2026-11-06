@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs>
+<radialGradient id="bg" cx="50%" cy="38%" r="75%">
+  <stop offset="0" stop-color="#1B1A1F"/><stop offset=".55" stop-color="#0E1018"/><stop offset="1" stop-color="#07080C"/>
+</radialGradient>
+<radialGradient id="halo" cx="50%" cy="50%" r="50%">
+  <stop offset="0" stop-color="#D4AF37" stop-opacity=".28"/><stop offset="1" stop-color="#D4AF37" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="azul" cx="10%" cy="95%" r="60%">
+  <stop offset="0" stop-color="#0E223D" stop-opacity=".9"/><stop offset="1" stop-color="#0E223D" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="ouro" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#F6E3A1"/><stop offset=".3" stop-color="#D4AF37"/><stop offset=".55" stop-color="#8F7020"/><stop offset=".78" stop-color="#E9C766"/><stop offset="1" stop-color="#B8921F"/>
+</linearGradient>
+<linearGradient id="ouroV" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#F6E3A1"/><stop offset=".45" stop-color="#C9A030"/><stop offset="1" stop-color="#8F7020"/>
+</linearGradient>
+<linearGradient id="gema" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#E8EDF5"/><stop offset=".7" stop-color="#AFC0D8"/><stop offset="1" stop-color="#FFFFFF"/>
+</linearGradient>
+<filter id="brilho" x="-50%" y="-50%" width="200%" height="200%">
+  <feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+<filter id="sombra" x="-30%" y="-30%" width="160%" height="160%">
+  <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#000" flood-opacity=".55"/>
+</filter>
+</defs><rect width="1000" height="1000" fill="url(#bg)"/>
+<rect width="1000" height="1000" fill="url(#azul)"/>
+<circle cx="505" cy="300" r="320" fill="url(#halo)"/>
+<circle cx="505" cy="300" r="304" fill="none" stroke="#D4AF37" stroke-opacity=".10" stroke-width="1.2"/>
+<circle cx="505" cy="300" r="358" fill="none" stroke="#D4AF37" stroke-opacity=".06" stroke-width="1" stroke-dasharray="2 9"/><g transform="translate(505 300) scale(.78) translate(-505 -430)"><g filter="url(#sombra)"><ellipse cx="420" cy="420" rx="165" ry="165" fill="none" stroke="#6E561A" stroke-width="40" transform="rotate(-20 420 420) scale(1 1)"/><ellipse cx="420" cy="420" rx="165" ry="165" fill="none" stroke="url(#ouro)" stroke-width="34"/><ellipse cx="420" cy="420" rx="150" ry="150" fill="none" stroke="#FFF2C4" stroke-opacity=".35" stroke-width="3"/><ellipse cx="590" cy="440" rx="150" ry="150" fill="none" stroke="#6E561A" stroke-width="30"/><ellipse cx="590" cy="440" rx="150" ry="150" fill="none" stroke="url(#ouro)" stroke-width="24"/><path d="M545 316 A165 165 0 0 1 575 470" fill="none" stroke="url(#ouro)" stroke-width="34"/><ellipse cx="590" cy="440" rx="138" ry="138" fill="none" stroke="#FFF2C4" stroke-opacity=".3" stroke-width="2.5"/><circle cx="449.0" cy="388.7" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="465.6" cy="356.1" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="489.6" cy="328.5" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="519.6" cy="307.6" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="553.7" cy="294.5" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="590.0" cy="290.0" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="626.3" cy="294.5" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="660.4" cy="307.6" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="690.4" cy="328.5" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="714.4" cy="356.1" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/><circle cx="731.0" cy="388.7" r="6.5" fill="url(#gema)" stroke="#8F7020" stroke-width="1.5"/></g><path d="M470 232 Q473.6 258.4 500 262 Q473.6 265.6 470 292 Q466.4 265.6 440 262 Q466.4 258.4 470 232Z" fill="#FFF6D6" opacity="1" filter="url(#brilho)"/><path d="M710 304 Q711.92 318.08 726 320 Q711.92 321.92 710 336 Q708.08 321.92 694 320 Q708.08 318.08 710 304Z" fill="#FFF6D6" opacity="0.8" filter="url(#brilho)"/><path d="M300 548 Q301.44 558.56 312 560 Q301.44 561.44 300 572 Q298.56 561.44 288 560 Q298.56 558.56 300 548Z" fill="#FFF6D6" opacity="0.6" filter="url(#brilho)"/></g></svg>

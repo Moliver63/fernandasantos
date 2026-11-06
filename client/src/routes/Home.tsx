@@ -156,13 +156,13 @@ export default function Home() {
                 href={`/catalogo/${cat.valor}`}
                 className="group relative flex aspect-[4/5] items-end overflow-hidden bg-onix md:aspect-[5/4]"
               >
-                {banner ? (
-                  <img src={banner} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-                ) : (
-                  <div className="fundo-onix absolute inset-0 flex items-start justify-center pt-[14%]">
-                    <Monograma className="h-1/3 w-1/3 opacity-25 transition duration-700 group-hover:opacity-50" />
-                  </div>
-                )}
+                {/* Foto enviada no admin tem prioridade; sem foto, usa a ilustração da coleção */}
+                <img
+                  src={banner ?? `/marca/colecoes/${cat.valor}.svg`}
+                  alt=""
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover object-top transition duration-700 group-hover:scale-105"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-onix/85 via-onix/10 to-transparent" />
                 <div className="absolute inset-3 border border-ouro/0 transition duration-500 group-hover:border-ouro/50" />
                 <div className="relative w-full p-5 md:p-7">

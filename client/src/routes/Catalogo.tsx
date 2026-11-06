@@ -53,8 +53,16 @@ export default function Catalogo() {
       />
       <Header />
 
-      <section className="fundo-onix">
-        <div className="mx-auto max-w-7xl px-6 py-14 text-center lg:px-8">
+      <section className="fundo-onix relative overflow-hidden">
+        {categoria && (
+          <img
+            src={`/marca/colecoes/${categoria}.svg`}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-8 -top-3 hidden h-[180%] opacity-70 lg:right-[6%] [mask-image:radial-gradient(circle_at_50%_32%,black_22%,transparent_48%)] md:block"
+          />
+        )}
+        <div className="relative mx-auto max-w-7xl px-6 py-14 text-center lg:px-8">
           <nav className="eyebrow mb-5 text-[0.6rem] text-marfim/50">
             <Link href="/" className="hover:text-ouro">Início</Link>
             <span className="mx-2">/</span>
