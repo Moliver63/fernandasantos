@@ -17,7 +17,7 @@ Base técnica: arquitetura do **Caro Vargas Cerâmica** (já validada em produç
 ```bash
 cp .env.example .env        # preencha ao menos DATABASE_URL e ADMIN_*
 npm install
-npm run db:migrate          # cria as tabelas (drizzle/0000_inicial.sql)
+npm run db:migrate          # cria as tabelas (no Render roda sozinho no start)
 npm run seed                # catálogo de DEMONSTRAÇÃO (apagar antes de ir ao ar)
 npm run dev                 # http://localhost:4000
 ```

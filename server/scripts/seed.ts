@@ -183,6 +183,12 @@ const PECAS: {
 ];
 
 async function seed() {
+  // Idempotente: roda no start do Render (SEED_DEMO=true) sem duplicar
+  const existente = await db.query.produtos.findFirst();
+  if (existente) {
+    console.log("Catálogo já tem peças — seed de demonstração ignorado.");
+    process.exit(0);
+  }
   console.log("Populando catálogo de demonstração FS Joias...");
 
   for (const { produto, banhos, tamanhos } of PECAS) {
