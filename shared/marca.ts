@@ -16,7 +16,7 @@ export const MARCA = {
 
   // WhatsApp no formato internacional, só dígitos (55 + DDD + número).
   // Vazio = o botão flutuante abre o Direct do Instagram no lugar.
-  whatsapp: "",
+  whatsapp: "5547999143188",
 
   emailContato: "contato@fsjoias.com.br",
   cidade: "Balneário Camboriú/SC",

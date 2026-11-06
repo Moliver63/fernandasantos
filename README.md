@@ -59,7 +59,7 @@ caixa de e-mail, financeiro, banners das categorias.
 
 ## Antes de ir ao ar
 
-- [ ] Número de **WhatsApp** em `shared/marca.ts` (vazio = botão abre o Direct do Instagram)
+- [x] WhatsApp (47) 99914-3188 em `shared/marca.ts`
 - [ ] Confirmar **domínio** (`SITE_URL`, `shared/marca.ts`, `client/index.html`, `robots.txt`)
 - [ ] Confirmar com a Fernanda os textos de política: garantia de 12 meses, "antialérgicas/livres de
       níquel", embalagem para presente, prazo de envio, 5% no Pix e 6x sem juros
